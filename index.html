@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OVERRIDE // Live Status Terminal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Orbitron:wght@600;800;900&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-dark: #070210;
@@ -26,6 +26,10 @@
       --base-font-scale: 1.12;
       --card-padding: 16px 20px;
       --container-max-width: 1020px;
+      --glow-strength: 18px;
+      --card-opacity-val: 0.92;
+      --active-font-family: 'Inter', sans-serif;
+      --bg-hue-rotate: 0deg;
     }
 
     /* THEME: Matrix Green */
@@ -48,13 +52,44 @@
       --bg-card-hover: rgba(77, 31, 10, 0.96);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    /* THEME: Crimson Red */
+    body.theme-red {
+      --accent-magenta: #ff2222;
+      --accent-cyan: #ff7700;
+      --border-neon: rgba(255, 34, 34, 0.5);
+      --bg-dark: #0d0202;
+      --bg-card: rgba(38, 8, 8, 0.92);
+      --bg-card-hover: rgba(77, 16, 16, 0.96);
+    }
+
+    /* THEME: Electric Blue */
+    body.theme-blue {
+      --accent-magenta: #0088ff;
+      --accent-cyan: #00ffff;
+      --border-neon: rgba(0, 136, 255, 0.5);
+      --bg-dark: #02070d;
+      --bg-card: rgba(8, 22, 38, 0.92);
+      --bg-card-hover: rgba(16, 44, 77, 0.96);
+    }
+
+    /* THEME: Ultraviolet Purple */
+    body.theme-purple {
+      --accent-magenta: #9900ff;
+      --accent-cyan: #ff00ea;
+      --border-neon: rgba(153, 0, 255, 0.5);
+      --bg-dark: #07020d;
+      --bg-card: rgba(22, 8, 38, 0.92);
+      --bg-card-hover: rgba(44, 16, 77, 0.96);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--active-font-family); }
 
     body {
       background-color: var(--bg-dark);
       background-image: 
         radial-gradient(circle at 50% 20%, rgba(138, 43, 226, 0.2) 0%, transparent 60%),
         radial-gradient(circle at 80% 80%, rgba(255, 0, 127, 0.12) 0%, transparent 50%);
+      filter: hue-rotate(var(--bg-hue-rotate));
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -97,7 +132,7 @@
     .top-badge {
       background: #000; border: 2px solid var(--accent-magenta); font-family: 'Orbitron', sans-serif; font-weight: 900;
       font-size: calc(13px * var(--base-font-scale)); color: #fff; padding: 8px 14px;
-      box-shadow: 0 0 12px var(--border-neon); transform: skewX(-12deg); display: flex; align-items: center; gap: 6px;
+      box-shadow: 0 0 var(--glow-strength) var(--border-neon); transform: skewX(-12deg); display: flex; align-items: center; gap: 6px;
     }
     .top-badge span { display: block; transform: skewX(12deg); }
 
@@ -114,14 +149,14 @@
     .btn {
       background: #000; color: var(--accent-cyan); font-family: 'Orbitron', sans-serif;
       font-weight: 900; font-size: calc(12px * var(--base-font-scale)); padding: 10px 18px; border: 2px solid var(--accent-cyan);
-      transform: skewX(-10deg); cursor: pointer; box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+      transform: skewX(-10deg); cursor: pointer; box-shadow: 0 0 var(--glow-strength) rgba(0, 240, 255, 0.3);
       transition: all 0.2s ease; text-transform: uppercase;
     }
     .btn span { display: block; transform: skewX(10deg); }
-    .btn:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 18px var(--accent-cyan); }
+    .btn:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 calc(var(--glow-strength) * 1.5) var(--accent-cyan); }
 
-    .btn-settings { border-color: var(--accent-magenta); color: var(--accent-magenta); box-shadow: 0 0 10px var(--border-neon); }
-    .btn-settings:hover { background: var(--accent-magenta); color: #fff; box-shadow: 0 0 18px var(--accent-magenta); }
+    .btn-settings { border-color: var(--accent-magenta); color: var(--accent-magenta); box-shadow: 0 0 var(--glow-strength) var(--border-neon); }
+    .btn-settings:hover { background: var(--accent-magenta); color: #fff; box-shadow: 0 0 calc(var(--glow-strength) * 1.5) var(--accent-magenta); }
 
     .realtime-ticker {
       background: rgba(255, 0, 127, 0.08); border-left: 5px solid var(--accent-magenta);
@@ -130,7 +165,7 @@
       display: flex; align-items: center; gap: 12px; margin-bottom: 28px; box-shadow: inset 0 0 20px rgba(255, 0, 127, 0.1);
     }
     
-    .ticker-pulse { width: 12px; height: 12px; background-color: var(--accent-magenta); box-shadow: 0 0 12px var(--accent-magenta); animation: pulse 1s infinite; flex-shrink: 0; }
+    .ticker-pulse { width: 12px; height: 12px; background-color: var(--accent-magenta); box-shadow: 0 0 var(--glow-strength) var(--accent-magenta); animation: pulse 1s infinite; flex-shrink: 0; }
     @keyframes pulse { 0% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.25); } 100% { opacity: 0.3; transform: scale(0.8); } }
 
     .section-title { 
@@ -146,7 +181,7 @@
       padding: var(--card-padding); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease;
       clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
     }
-    .service-card:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); transform: translateY(-2px); box-shadow: 0 0 18px rgba(0, 240, 255, 0.25); }
+    .service-card:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); transform: translateY(-2px); box-shadow: 0 0 var(--glow-strength) rgba(0, 240, 255, 0.25); }
     
     .service-name { font-weight: 700; font-size: calc(15px * var(--base-font-scale)); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .service-tag {
@@ -156,15 +191,15 @@
     }
     .service-tag span { display: block; transform: skewX(12deg); }
 
-    .status-badge { display: flex; align-items: center; gap: 10px; font-size: calc(14px * var(--base-font-scale)); font-weight: 800; font-family: 'Inter', sans-serif; white-space: nowrap; }
+    .status-badge { display: flex; align-items: center; gap: 10px; font-size: calc(14px * var(--base-font-scale)); font-weight: 800; white-space: nowrap; }
     .dot { width: 12px; height: 12px; transform: rotate(45deg); display: inline-block; flex-shrink: 0; }
     
-    .dot.operational { background-color: var(--status-operational); box-shadow: 0 0 12px var(--status-operational); }
-    .dot.degraded_performance, .dot.partial_outage { background-color: var(--status-degraded); box-shadow: 0 0 12px var(--status-degraded); }
-    .dot.major_outage { background-color: var(--status-outage); box-shadow: 0 0 12px var(--status-outage); }
-    .dot.under_maintenance { background-color: var(--status-maintenance); box-shadow: 0 0 12px var(--status-maintenance); }
+    .dot.operational { background-color: var(--status-operational); box-shadow: 0 0 var(--glow-strength) var(--status-operational); }
+    .dot.degraded_performance, .dot.partial_outage { background-color: var(--status-degraded); box-shadow: 0 0 var(--glow-strength) var(--status-degraded); }
+    .dot.major_outage { background-color: var(--status-outage); box-shadow: 0 0 var(--glow-strength) var(--status-outage); }
+    .dot.under_maintenance { background-color: var(--status-maintenance); box-shadow: 0 0 var(--glow-strength) var(--status-maintenance); }
 
-    /* MODAL SETTINGS */
+    /* COLOR-ENHANCED MODAL SETTINGS */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(5, 2, 15, 0.88); backdrop-filter: blur(8px);
@@ -174,30 +209,41 @@
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
     .modal-box {
-      background: #0f0622; border: 2px solid var(--accent-magenta); padding: 28px;
-      width: 90%; max-width: 560px; max-height: 85vh; overflow-y: auto;
-      box-shadow: 0 0 35px var(--border-neon);
+      background: linear-gradient(135deg, #0f0622 0%, #1a0b36 100%); 
+      border: 2px solid var(--accent-magenta); padding: 28px;
+      width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 0 45px var(--border-neon);
       clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
     }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; border-bottom: 2px solid var(--accent-magenta); padding-bottom: 12px; }
-    .modal-header h3 { font-family: 'Orbitron', sans-serif; font-size: 17px; color: var(--accent-cyan); font-weight: 900; }
-    .close-btn { background: none; border: none; color: var(--accent-magenta); font-size: 26px; cursor: pointer; font-weight: 900; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 12px; }
+    .modal-header h3 { font-family: 'Orbitron', sans-serif; font-size: 17px; color: var(--accent-cyan); font-weight: 900; text-shadow: 0 0 10px rgba(0,240,255,0.4); }
+    .close-btn { background: none; border: none; color: var(--accent-magenta); font-size: 26px; cursor: pointer; font-weight: 900; transition: transform 0.2s; }
+    .close-btn:hover { transform: scale(1.2); color: var(--accent-cyan); }
 
-    .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; }
-    .setting-label { font-weight: 700; font-size: 14px; color: var(--text-main); }
-    .setting-desc { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
-
-    .setting-control select {
-      background: #180933; color: var(--accent-cyan); border: 1.5px solid var(--accent-cyan);
-      padding: 8px 12px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 13px; outline: none;
+    .settings-category-title {
+      font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 900; color: var(--accent-magenta);
+      letter-spacing: 1.5px; text-transform: uppercase; margin: 20px 0 10px 0; border-left: 3px solid var(--accent-magenta); padding-left: 8px;
     }
+
+    .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 15px; background: rgba(255, 255, 255, 0.02); padding: 10px 14px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .setting-item:hover { border-color: rgba(0, 240, 255, 0.2); background: rgba(0, 240, 255, 0.03); }
+    
+    .setting-label { font-weight: 700; font-size: 13px; color: var(--text-main); }
+    .setting-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .setting-control select, .setting-control input[type="color"], .setting-control input[type="range"] {
+      background: #180933; color: var(--accent-cyan); border: 1.5px solid var(--accent-cyan);
+      padding: 6px 10px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 12px; outline: none; cursor: pointer;
+    }
+    .setting-control input[type="color"] { width: 45px; height: 32px; padding: 2px; border-radius: 4px; }
+    .setting-control input[type="range"] { accent-color: var(--accent-cyan); width: 110px; }
 
     .switch { position: relative; display: inline-block; width: 48px; height: 24px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #230d42; transition: .25s; border: 1px solid var(--accent-magenta); }
-    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: #fff; transition: .25s; }
-    input:checked + .slider { background-color: var(--accent-magenta); }
-    input:checked + .slider:before { transform: translateX(24px); background-color: var(--accent-cyan); }
+    .slider-toggle { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #230d42; transition: .25s; border: 1px solid var(--accent-magenta); }
+    .slider-toggle:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: #fff; transition: .25s; }
+    input:checked + .slider-toggle { background-color: var(--accent-magenta); }
+    input:checked + .slider-toggle:before { transform: translateX(24px); background-color: var(--accent-cyan); }
 
     footer { text-align: center; margin-top: 45px; font-size: calc(12px * var(--base-font-scale)); color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1.5px; font-weight: 700; }
     footer span { color: var(--accent-magenta); font-weight: 900; }
@@ -213,7 +259,7 @@
         <div class="clock-badge"><span id="utc-clock">00:00:00 UTC</span></div>
       </div>
       <div class="controls">
-        <button class="btn btn-settings" onclick="playSound(); toggleSettingsModal(true)"><span>⚙️ SETTINGS</span></button>
+        <button class="btn btn-settings" onclick="playSound(); toggleSettingsModal(true)"><span>⚙️ SETTINGS PANEL</span></button>
         <button class="btn" id="live-check-btn" onclick="playSound(); fetchRealtimeUpdates()"><span>⚡ LIVE CHECK</span></button>
       </div>
     </header>
@@ -274,24 +320,65 @@
     </footer>
   </div>
 
-  <!-- SETTINGS MODAL -->
+  <!-- COLOR-ENHANCED SETTINGS MODAL -->
   <div class="modal-overlay" id="settings-modal">
     <div class="modal-box">
       <div class="modal-header">
-        <h3>⚙️ ADVANCED TERMINAL SETTINGS</h3>
+        <h3>⚙️ COLOR & TERMINAL SETTINGS</h3>
         <button class="close-btn" onclick="playSound(); toggleSettingsModal(false)">&times;</button>
+      </div>
+
+      <div class="settings-category-title">🎨 Color & Theme Customization</div>
+      
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Preset Theme Palette</div>
+          <div class="setting-desc">Switch core template color themes.</div>
+        </div>
+        <div class="setting-control">
+          <select id="themeSelect" onchange="playSound(); applyTheme(this.value)">
+            <option value="default" selected>Cyberpunk Pink/Cyan</option>
+            <option value="matrix">Matrix Green/Teal</option>
+            <option value="solar">Solar Orange/Yellow</option>
+            <option value="red">Crimson Red/Amber</option>
+            <option value="blue">Electric Blue/Cyan</option>
+            <option value="purple">Ultraviolet Purple</option>
+          </select>
+        </div>
       </div>
 
       <div class="setting-item">
         <div>
-          <div class="setting-label">Color Theme Profile</div>
-          <div class="setting-desc">Switch terminal accent palettes.</div>
+          <div class="setting-label">Custom Accent Color</div>
+          <div class="setting-desc">Pick a personalized custom neon hue.</div>
         </div>
         <div class="setting-control">
-          <select id="themeSelect" onchange="playSound(); applyTheme(this.value)">
-            <option value="default" selected>Cyberpunk (Pink/Cyan)</option>
-            <option value="matrix">Matrix (Green/Teal)</option>
-            <option value="solar">Solar (Orange/Yellow)</option>
+          <input type="color" id="customColorPicker" value="#ff007f" onchange="applyCustomAccent(this.value)">
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Ambient Background Hue</div>
+          <div class="setting-desc">Shift overall atmosphere color wheel.</div>
+        </div>
+        <div class="setting-control">
+          <input type="range" min="0" max="360" value="0" step="10" oninput="applyHueShift(this.value)">
+        </div>
+      </div>
+
+      <div class="settings-category-title">📐 Layout & Typography</div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Terminal Font Family</div>
+          <div class="setting-desc">Switch typography styling.</div>
+        </div>
+        <div class="setting-control">
+          <select id="fontFamilySelect" onchange="playSound(); applyFontFamily(this.value)">
+            <option value="'Inter', sans-serif" selected>Modern Sans (Inter)</option>
+            <option value="'Orbitron', sans-serif">Cyberpunk (Orbitron)</option>
+            <option value="'Fira Code', monospace">Retro Code (Fira Mono)</option>
           </select>
         </div>
       </div>
@@ -299,7 +386,7 @@
       <div class="setting-item">
         <div>
           <div class="setting-label">Text Scale / Sizing</div>
-          <div class="setting-desc">Adjust UI text size for best comfort.</div>
+          <div class="setting-desc">Adjust UI sizing factor.</div>
         </div>
         <div class="setting-control">
           <select id="fontSizeSelect" onchange="playSound(); applyTextSize(this.value)">
@@ -313,20 +400,36 @@
       <div class="setting-item">
         <div>
           <div class="setting-label">Layout Width Mode</div>
-          <div class="setting-desc">Choose between standard box or widescreen.</div>
+          <div class="setting-desc">Boxed view vs Full widescreen.</div>
         </div>
         <div class="setting-control">
           <select id="layoutWidthSelect" onchange="playSound(); applyLayoutWidth(this.value)">
-            <option value="1020px" selected>Standard Width</option>
-            <option value="100%">Full Fluid Width</option>
+            <option value="1020px" selected>Standard Boxed</option>
+            <option value="100%">Fluid Fullscreen</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-category-title">⚡ Effects & Performance</div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Neon Glow Intensity</div>
+          <div class="setting-desc">Adjust ambient shadow strength.</div>
+        </div>
+        <div class="setting-control">
+          <select id="glowSelect" onchange="playSound(); applyGlowIntensity(this.value)">
+            <option value="8px">Subtle Glow</option>
+            <option value="18px" selected>Normal Cyber</option>
+            <option value="32px">Maximum Intensity</option>
           </select>
         </div>
       </div>
 
       <div class="setting-item">
         <div>
-          <div class="setting-label">Background Particle Density</div>
-          <div class="setting-desc">Change the volume of background nodes.</div>
+          <div class="setting-label">Particle Density Volume</div>
+          <div class="setting-desc">Number of background nodes.</div>
         </div>
         <div class="setting-control">
           <select id="particleDensitySelect" onchange="playSound(); applyParticleDensity(this.value)">
@@ -340,7 +443,7 @@
       <div class="setting-item">
         <div>
           <div class="setting-label">Auto-Refresh Rate</div>
-          <div class="setting-desc">Automatically pull live status updates.</div>
+          <div class="setting-desc">Automatic live interval sync.</div>
         </div>
         <div class="setting-control">
           <select id="refreshRateSelect" onchange="playSound(); applyAutoRefresh(this.value)">
@@ -352,15 +455,17 @@
         </div>
       </div>
 
+      <div class="settings-category-title">🎛️ Feature Toggles</div>
+
       <div class="setting-item">
         <div>
           <div class="setting-label">Live UTC World Clock</div>
-          <div class="setting-desc">Display active UTC time ticker in header.</div>
+          <div class="setting-desc">Ticker in top header bar.</div>
         </div>
         <div class="setting-control">
           <label class="switch">
             <input type="checkbox" id="clockToggle" onchange="playSound(); toggleClock(this.checked)">
-            <span class="slider"></span>
+            <span class="slider-toggle"></span>
           </label>
         </div>
       </div>
@@ -368,12 +473,12 @@
       <div class="setting-item">
         <div>
           <div class="setting-label">UI Sound Effects (SFX)</div>
-          <div class="setting-desc">Play retro electronic audio clicks.</div>
+          <div class="setting-desc">Retro audio clicks.</div>
         </div>
         <div class="setting-control">
           <label class="switch">
             <input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)">
-            <span class="slider"></span>
+            <span class="slider-toggle"></span>
           </label>
         </div>
       </div>
@@ -381,12 +486,12 @@
       <div class="setting-item">
         <div>
           <div class="setting-label">CRT Scanlines Overlay</div>
-          <div class="setting-desc">Toggle retro monitor scanlines on or off.</div>
+          <div class="setting-desc">Retro monitor lines.</div>
         </div>
         <div class="setting-control">
           <label class="switch">
             <input type="checkbox" id="scanlinesToggle" checked onchange="playSound(); toggleScanlines(this.checked)">
-            <span class="slider"></span>
+            <span class="slider-toggle"></span>
           </label>
         </div>
       </div>
@@ -394,38 +499,38 @@
       <div class="setting-item">
         <div>
           <div class="setting-label">High Contrast Mode</div>
-          <div class="setting-desc">Darker background and high-contrast text.</div>
+          <div class="setting-desc">Pure black background mode.</div>
         </div>
         <div class="setting-control">
           <label class="switch">
             <input type="checkbox" id="highContrastToggle" onchange="playSound(); toggleHighContrast(this.checked)">
-            <span class="slider"></span>
+            <span class="slider-toggle"></span>
           </label>
         </div>
       </div>
 
       <div class="setting-item">
         <div>
-          <div class="setting-label">Background Particles</div>
-          <div class="setting-desc">Toggle floating background animations.</div>
+          <div class="setting-label">Background Particles Animation</div>
+          <div class="setting-desc">Floating background cubes.</div>
         </div>
         <div class="setting-control">
           <label class="switch">
             <input type="checkbox" id="particlesToggle" checked onchange="playSound(); toggleParticles(this.checked)">
-            <span class="slider"></span>
+            <span class="slider-toggle"></span>
           </label>
         </div>
       </div>
 
       <div class="setting-item">
         <div>
-          <div class="setting-label">Ultra-Compact Grid</div>
-          <div class="setting-desc">Tighter spacing on all service status cards.</div>
+          <div class="setting-label">Ultra-Compact Grid Spacing</div>
+          <div class="setting-desc">Tight layout padding.</div>
         </div>
         <div class="setting-control">
           <label class="switch">
             <input type="checkbox" id="compactToggle" onchange="playSound(); toggleCompactView(this.checked)">
-            <span class="slider"></span>
+            <span class="slider-toggle"></span>
           </label>
         </div>
       </div>
@@ -439,7 +544,6 @@
     let audioCtx = null;
     let clockTimer = null;
 
-    // Web Audio API Synthesized Click Beep
     function playSound() {
       if (!soundEnabled) return;
       try {
@@ -455,9 +559,7 @@
         gain.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.05);
-      } catch (e) {
-        // Audio context restrictions bypass
-      }
+      } catch (e) {}
     }
 
     function toggleSound(enabled) {
@@ -472,10 +574,23 @@
     }
 
     function applyTheme(theme) {
-      document.body.classList.remove('theme-matrix', 'theme-solar');
+      document.body.classList.remove('theme-matrix', 'theme-solar', 'theme-red', 'theme-blue', 'theme-purple');
       if (theme !== 'default') {
         document.body.classList.add(`theme-${theme}`);
       }
+    }
+
+    function applyCustomAccent(hex) {
+      document.documentElement.style.setProperty('--accent-magenta', hex);
+      document.documentElement.style.setProperty('--border-neon', hex + '88');
+    }
+
+    function applyHueShift(deg) {
+      document.documentElement.style.setProperty('--bg-hue-rotate', deg + 'deg');
+    }
+
+    function applyFontFamily(font) {
+      document.documentElement.style.setProperty('--active-font-family', font);
     }
 
     function applyTextSize(scale) {
@@ -484,6 +599,10 @@
 
     function applyLayoutWidth(widthVal) {
       document.documentElement.style.setProperty('--container-max-width', widthVal);
+    }
+
+    function applyGlowIntensity(strength) {
+      document.documentElement.style.setProperty('--glow-strength', strength);
     }
 
     function applyAutoRefresh(intervalMs) {
@@ -495,7 +614,6 @@
     }
 
     function toggleClock(enabled) {
-      const clockEl = document.getElementById('utc-clock');
       if (enabled) {
         document.body.classList.add('show-clock');
         updateClock();
@@ -551,7 +669,6 @@
         
         const data = await res.json();
         const overallStatus = data.status.description || 'All Systems Operational';
-        
         ticker.innerText = `OVERRIDE STATUS: ${overallStatus.toUpperCase()}`;
         
         const components = data.components || [];
@@ -567,7 +684,6 @@
 
       } catch (err) {
         ticker.innerText = 'OVERRIDE STATUS: ALL SYSTEMS OPERATIONAL (LIVE SYNCED)';
-
         ['status-fortnite', 'status-lego-fortnite', 'status-fortnite-festival', 'status-rocket-racing', 'status-rocket-league', 'status-fall-guys', 'status-store', 'status-launcher', 'status-auth'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.innerHTML = '<span class="dot operational"></span> <span class="txt">Operational</span>';
@@ -593,16 +709,12 @@
       const cssClass = statusKey || 'operational';
 
       el.innerHTML = `<span class="dot ${cssClass}"></span> <span class="txt" style="text-transform: capitalize;">${formattedStatus}</span>`;
-      if (cssClass === 'operational') el.style.color = 'var(--status-operational)';
-      else if (cssClass === 'under_maintenance') el.style.color = 'var(--status-maintenance)';
-      else el.style.color = 'var(--status-degraded)';
     }
 
     applyTextSize('1.12');
     applyAutoRefresh(30000);
     fetchRealtimeUpdates();
 
-    // Floating particles engine
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -629,7 +741,6 @@
       }
     }
     
-    // Initialize standard density (35 particles)
     for (let i = 0; i < 35; i++) particles.push(new CubeParticle());
 
     function animate() {
