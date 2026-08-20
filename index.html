@@ -23,9 +23,9 @@
       --text-main: #ffffff;
       --text-muted: #b8b3db;
       
-      /* Perfectly balanced larger size for ultimate readability */
       --base-font-scale: 1.12;
       --card-padding: 16px 20px;
+      --container-max-width: 1020px;
     }
 
     /* THEME: Matrix Green */
@@ -75,7 +75,6 @@
       --text-muted: #e0e0e0;
     }
 
-    /* Scanlines (Can be toggled off) */
     body.no-scanlines::after { display: none; }
     body::after {
       content: ""; display: block; position: fixed;
@@ -85,7 +84,7 @@
     }
 
     #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-    .container { width: 100%; max-width: 1020px; padding: 35px 20px; z-index: 1; }
+    .container { width: 100%; max-width: var(--container-max-width); padding: 35px 20px; z-index: 1; transition: max-width 0.3s ease; }
 
     header {
       display: flex; justify-content: space-between; align-items: center;
@@ -93,12 +92,22 @@
       flex-wrap: wrap; gap: 14px;
     }
 
+    .top-badge-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
     .top-badge {
       background: #000; border: 2px solid var(--accent-magenta); font-family: 'Orbitron', sans-serif; font-weight: 900;
       font-size: calc(13px * var(--base-font-scale)); color: #fff; padding: 8px 14px;
       box-shadow: 0 0 12px var(--border-neon); transform: skewX(-12deg); display: flex; align-items: center; gap: 6px;
     }
     .top-badge span { display: block; transform: skewX(12deg); }
+
+    .clock-badge {
+      background: rgba(0, 240, 255, 0.1); border: 1.5px solid var(--accent-cyan); font-family: 'Orbitron', sans-serif;
+      font-weight: 700; font-size: calc(11px * var(--base-font-scale)); color: var(--accent-cyan); padding: 8px 12px;
+      display: none; align-items: center; gap: 6px; transform: skewX(-12deg);
+    }
+    .clock-badge span { display: block; transform: skewX(12deg); }
+    body.show-clock .clock-badge { display: flex; }
 
     .controls { display: flex; align-items: center; gap: 12px; }
 
@@ -166,7 +175,8 @@
 
     .modal-box {
       background: #0f0622; border: 2px solid var(--accent-magenta); padding: 28px;
-      width: 90%; max-width: 520px; box-shadow: 0 0 35px var(--border-neon);
+      width: 90%; max-width: 560px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 0 35px var(--border-neon);
       clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; border-bottom: 2px solid var(--accent-magenta); padding-bottom: 12px; }
@@ -198,10 +208,13 @@
 
   <div class="container">
     <header>
-      <div class="top-badge"><span>ANIDEX // OVERRIDE</span></div>
+      <div class="top-badge-group">
+        <div class="top-badge"><span>ANIDEX // OVERRIDE</span></div>
+        <div class="clock-badge"><span id="utc-clock">00:00:00 UTC</span></div>
+      </div>
       <div class="controls">
-        <button class="btn btn-settings" onclick="toggleSettingsModal(true)"><span>⚙️ SETTINGS</span></button>
-        <button class="btn" id="live-check-btn" onclick="fetchRealtimeUpdates()"><span>⚡ LIVE CHECK</span></button>
+        <button class="btn btn-settings" onclick="playSound(); toggleSettingsModal(true)"><span>⚙️ SETTINGS</span></button>
+        <button class="btn" id="live-check-btn" onclick="playSound(); fetchRealtimeUpdates()"><span>⚡ LIVE CHECK</span></button>
       </div>
     </header>
 
@@ -265,17 +278,17 @@
   <div class="modal-overlay" id="settings-modal">
     <div class="modal-box">
       <div class="modal-header">
-        <h3>⚙️ TERMINAL SETTINGS</h3>
-        <button class="close-btn" onclick="toggleSettingsModal(false)">&times;</button>
+        <h3>⚙️ ADVANCED TERMINAL SETTINGS</h3>
+        <button class="close-btn" onclick="playSound(); toggleSettingsModal(false)">&times;</button>
       </div>
 
       <div class="setting-item">
         <div>
           <div class="setting-label">Color Theme Profile</div>
-          <div class="setting-desc">Switch terminal neon accent color schemes.</div>
+          <div class="setting-desc">Switch terminal accent palettes.</div>
         </div>
         <div class="setting-control">
-          <select id="themeSelect" onchange="applyTheme(this.value)">
+          <select id="themeSelect" onchange="playSound(); applyTheme(this.value)">
             <option value="default" selected>Cyberpunk (Pink/Cyan)</option>
             <option value="matrix">Matrix (Green/Teal)</option>
             <option value="solar">Solar (Orange/Yellow)</option>
@@ -286,13 +299,40 @@
       <div class="setting-item">
         <div>
           <div class="setting-label">Text Scale / Sizing</div>
-          <div class="setting-desc">Adjust UI text size for best reading comfort.</div>
+          <div class="setting-desc">Adjust UI text size for best comfort.</div>
         </div>
         <div class="setting-control">
-          <select id="fontSizeSelect" onchange="applyTextSize(this.value)">
+          <select id="fontSizeSelect" onchange="playSound(); applyTextSize(this.value)">
             <option value="0.95">Compact (95%)</option>
             <option value="1.12" selected>Comfortable Large (112%)</option>
             <option value="1.25">Extra Large (125%)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Layout Width Mode</div>
+          <div class="setting-desc">Choose between standard box or widescreen.</div>
+        </div>
+        <div class="setting-control">
+          <select id="layoutWidthSelect" onchange="playSound(); applyLayoutWidth(this.value)">
+            <option value="1020px" selected>Standard Width</option>
+            <option value="100%">Full Fluid Width</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Background Particle Density</div>
+          <div class="setting-desc">Change the volume of background nodes.</div>
+        </div>
+        <div class="setting-control">
+          <select id="particleDensitySelect" onchange="playSound(); applyParticleDensity(this.value)">
+            <option value="15">Low (15)</option>
+            <option value="35" selected>Normal (35)</option>
+            <option value="70">High (70)</option>
           </select>
         </div>
       </div>
@@ -303,7 +343,7 @@
           <div class="setting-desc">Automatically pull live status updates.</div>
         </div>
         <div class="setting-control">
-          <select id="refreshRateSelect" onchange="applyAutoRefresh(this.value)">
+          <select id="refreshRateSelect" onchange="playSound(); applyAutoRefresh(this.value)">
             <option value="0">Manual Only</option>
             <option value="15000">Every 15s</option>
             <option value="30000" selected>Every 30s</option>
@@ -314,12 +354,38 @@
 
       <div class="setting-item">
         <div>
+          <div class="setting-label">Live UTC World Clock</div>
+          <div class="setting-desc">Display active UTC time ticker in header.</div>
+        </div>
+        <div class="setting-control">
+          <label class="switch">
+            <input type="checkbox" id="clockToggle" onchange="playSound(); toggleClock(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">UI Sound Effects (SFX)</div>
+          <div class="setting-desc">Play retro electronic audio clicks.</div>
+        </div>
+        <div class="setting-control">
+          <label class="switch">
+            <input type="checkbox" id="soundToggle" onchange="toggleSound(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
           <div class="setting-label">CRT Scanlines Overlay</div>
           <div class="setting-desc">Toggle retro monitor scanlines on or off.</div>
         </div>
         <div class="setting-control">
           <label class="switch">
-            <input type="checkbox" id="scanlinesToggle" checked onchange="toggleScanlines(this.checked)">
+            <input type="checkbox" id="scanlinesToggle" checked onchange="playSound(); toggleScanlines(this.checked)">
             <span class="slider"></span>
           </label>
         </div>
@@ -332,7 +398,7 @@
         </div>
         <div class="setting-control">
           <label class="switch">
-            <input type="checkbox" id="highContrastToggle" onchange="toggleHighContrast(this.checked)">
+            <input type="checkbox" id="highContrastToggle" onchange="playSound(); toggleHighContrast(this.checked)">
             <span class="slider"></span>
           </label>
         </div>
@@ -345,7 +411,7 @@
         </div>
         <div class="setting-control">
           <label class="switch">
-            <input type="checkbox" id="particlesToggle" checked onchange="toggleParticles(this.checked)">
+            <input type="checkbox" id="particlesToggle" checked onchange="playSound(); toggleParticles(this.checked)">
             <span class="slider"></span>
           </label>
         </div>
@@ -358,7 +424,7 @@
         </div>
         <div class="setting-control">
           <label class="switch">
-            <input type="checkbox" id="compactToggle" onchange="toggleCompactView(this.checked)">
+            <input type="checkbox" id="compactToggle" onchange="playSound(); toggleCompactView(this.checked)">
             <span class="slider"></span>
           </label>
         </div>
@@ -369,6 +435,35 @@
   <script>
     let refreshTimer = null;
     let particlesEnabled = true;
+    let soundEnabled = false;
+    let audioCtx = null;
+    let clockTimer = null;
+
+    // Web Audio API Synthesized Click Beep
+    function playSound() {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+      } catch (e) {
+        // Audio context restrictions bypass
+      }
+    }
+
+    function toggleSound(enabled) {
+      soundEnabled = enabled;
+      playSound();
+    }
 
     function toggleSettingsModal(open) {
       const modal = document.getElementById('settings-modal');
@@ -387,12 +482,36 @@
       document.documentElement.style.setProperty('--base-font-scale', scale);
     }
 
+    function applyLayoutWidth(widthVal) {
+      document.documentElement.style.setProperty('--container-max-width', widthVal);
+    }
+
     function applyAutoRefresh(intervalMs) {
       if (refreshTimer) clearInterval(refreshTimer);
       const ms = parseInt(intervalMs);
       if (ms > 0) {
         refreshTimer = setInterval(fetchRealtimeUpdates, ms);
       }
+    }
+
+    function toggleClock(enabled) {
+      const clockEl = document.getElementById('utc-clock');
+      if (enabled) {
+        document.body.classList.add('show-clock');
+        updateClock();
+        if (clockTimer) clearInterval(clockTimer);
+        clockTimer = setInterval(updateClock, 1000);
+      } else {
+        document.body.classList.remove('show-clock');
+        if (clockTimer) clearInterval(clockTimer);
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const utcString = now.toUTCString().split(' ')[4] + ' UTC';
+      const clockEl = document.getElementById('utc-clock');
+      if (clockEl) clockEl.innerText = utcString;
     }
 
     function toggleScanlines(enabled) {
@@ -409,6 +528,12 @@
       particlesEnabled = enabled;
       const canvas = document.getElementById('particle-canvas');
       canvas.style.display = enabled ? 'block' : 'none';
+    }
+
+    function applyParticleDensity(countStr) {
+      const count = parseInt(countStr);
+      particles = [];
+      for (let i = 0; i < count; i++) particles.push(new CubeParticle());
     }
 
     function toggleCompactView(enabled) {
@@ -477,7 +602,7 @@
     applyAutoRefresh(30000);
     fetchRealtimeUpdates();
 
-    // Floating particles
+    // Floating particles engine
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -503,7 +628,9 @@
         ctx.fillRect(this.x, this.y, this.size, this.size); ctx.globalAlpha = 1;
       }
     }
-    for (let i = 0; i < 30; i++) particles.push(new CubeParticle());
+    
+    // Initialize standard density (35 particles)
+    for (let i = 0; i < 35; i++) particles.push(new CubeParticle());
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
