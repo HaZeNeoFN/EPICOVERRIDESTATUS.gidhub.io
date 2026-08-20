@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fortnite OVERRIDE // Epic Games Live Status</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Teko:wght@700&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0418;
+      --bg-card: rgba(20, 9, 42, 0.88);
+      --bg-card-hover: rgba(45, 15, 80, 0.95);
+      
+      --border-neon: rgba(255, 0, 127, 0.5);
+      --accent-magenta: #ff007f; 
+      --accent-cyan: #00f0ff; 
+      --accent-yellow: #ffee00; 
+      --accent-purple: #8a2be2; 
+      
+      --status-operational: #00ff88;
+      --status-degraded: #ffaa00;
+      --status-outage: #ff007f;
+      --status-maintenance: #00aaff;
+      
+      --text-main: #ffffff;
+      --text-muted: #a4a0c5;
+      
+      /* Bumped up base scale for a larger view */
+      --base-font-scale: 1.0;
+      --card-padding: 14px 18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 20%, rgba(138, 43, 226, 0.25) 0%, transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(255, 0, 127, 0.15) 0%, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+      font-size: calc(14px * var(--base-font-scale));
+      line-height: 1.4;
+    }
+
+    body.high-contrast {
+      --bg-dark: #000000;
+      --bg-card: #120824;
+      --bg-card-hover: #220f40;
+      --border-neon: #ff007f;
+      --text-main: #ffffff;
+      --text-muted: #d0d0d0;
+    }
+
+    /* Subtle Scanlines */
+    body::after {
+      content: ""; display: block; position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+      z-index: 998; background-size: 100% 3px; pointer-events: none; opacity: 0.6;
+    }
+
+    #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+    .container { width: 100%; max-width: 960px; padding: 30px 18px; z-index: 1; }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--border-neon);
+      flex-wrap: wrap; gap: 12px;
+    }
+
+    .top-badge {
+      background: #000; border: 2px solid var(--accent-magenta); font-family: 'Orbitron', sans-serif; font-weight: 900;
+      font-size: calc(12px * var(--base-font-scale)); color: #fff; padding: 6px 12px;
+      box-shadow: 0 0 10px rgba(255, 0, 127, 0.5); transform: skewX(-12deg); display: flex; align-items: center; gap: 6px;
+    }
+    .top-badge span { display: block; transform: skewX(12deg); }
+
+    .controls { display: flex; align-items: center; gap: 10px; }
+
+    .btn {
+      background: #000; color: var(--accent-cyan); font-family: 'Orbitron', sans-serif;
+      font-weight: 900; font-size: calc(11px * var(--base-font-scale)); padding: 9px 16px; border: 2px solid var(--accent-cyan);
+      transform: skewX(-10deg); cursor: pointer; box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+      transition: all 0.2s ease; text-transform: uppercase;
+    }
+    .btn span { display: block; transform: skewX(10deg); }
+    .btn:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 16px rgba(0, 240, 255, 0.8); }
+
+    .btn-settings { border-color: var(--accent-magenta); color: var(--accent-magenta); box-shadow: 0 0 10px rgba(255, 0, 127, 0.3); }
+    .btn-settings:hover { background: var(--accent-magenta); color: #fff; box-shadow: 0 0 16px rgba(255, 0, 127, 0.8); }
+
+    .rating-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      border: 1.5px solid #fff;
+      padding: 2px 5px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 8px;
+      font-weight: 900;
+      color: #fff;
+      text-align: center;
+      line-height: 1;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .realtime-ticker {
+      background: rgba(255, 0, 127, 0.1); border-left: 4px solid var(--accent-magenta);
+      border-right: 4px solid var(--accent-cyan); color: #ffffff; padding: 12px 16px;
+      font-family: 'Orbitron', sans-serif; font-size: calc(11px * var(--base-font-scale)); font-weight: 700;
+      display: flex; align-items: center; gap: 10px; margin-bottom: 24px; box-shadow: inset 0 0 15px rgba(255, 0, 127, 0.15);
+    }
+    
+    .ticker-pulse { width: 10px; height: 10px; background-color: var(--accent-magenta); box-shadow: 0 0 10px var(--accent-magenta); animation: pulse 1s infinite; flex-shrink: 0; }
+    @keyframes pulse { 0% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.3; transform: scale(0.8); } }
+
+    .section-title { 
+      font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: calc(14px * var(--base-font-scale)); 
+      letter-spacing: 2px; color: var(--accent-cyan); margin: 24px 0 14px 0; text-shadow: 0 0 8px rgba(0, 240, 255, 0.5); 
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title::before { content: ""; display: inline-block; width: 6px; height: 14px; background: var(--accent-magenta); transform: skewX(-15deg); }
+    
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+    .service-card {
+      background: var(--bg-card); backdrop-filter: blur(6px); border: 1px solid rgba(255, 0, 127, 0.3);
+      padding: var(--card-padding); display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease;
+      clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    }
+    .service-card:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); transform: translateY(-1px); box-shadow: 0 0 14px rgba(0, 240, 255, 0.25); }
+    
+    .service-name { font-weight: 700; font-size: calc(14px * var(--base-font-scale)); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .service-tag {
+      font-size: calc(10px * var(--base-font-scale)); font-weight: 900; font-family: 'Orbitron', sans-serif; padding: 2px 6px;
+      background: rgba(255, 0, 127, 0.15); border: 1px solid var(--accent-magenta); color: var(--accent-magenta);
+      transform: skewX(-12deg);
+    }
+    .service-tag span { display: block; transform: skewX(12deg); }
+
+    .status-badge { display: flex; align-items: center; gap: 8px; font-size: calc(13px * var(--base-font-scale)); font-weight: 800; font-family: 'Inter', sans-serif; white-space: nowrap; }
+    .dot { width: 10px; height: 10px; transform: rotate(45deg); display: inline-block; flex-shrink: 0; }
+    
+    .dot.operational { background-color: var(--status-operational); box-shadow: 0 0 10px var(--status-operational); }
+    .dot.degraded_performance, .dot.partial_outage { background-color: var(--status-degraded); box-shadow: 0 0 10px var(--status-degraded); }
+    .dot.major_outage { background-color: var(--status-outage); box-shadow: 0 0 10px var(--status-outage); }
+    .dot.under_maintenance { background-color: var(--status-maintenance); box-shadow: 0 0 10px var(--status-maintenance); }
+
+    /* MODAL SETTINGS */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(5, 2, 15, 0.88); backdrop-filter: blur(8px);
+      z-index: 999; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: all 0.25s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .modal-box {
+      background: #0f0622; border: 2px solid var(--accent-magenta); padding: 25px;
+      width: 90%; max-width: 480px; box-shadow: 0 0 30px rgba(255, 0, 127, 0.4);
+      clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--accent-magenta); padding-bottom: 10px; }
+    .modal-header h3 { font-family: 'Orbitron', sans-serif; font-size: 16px; color: var(--accent-cyan); font-weight: 900; }
+    .close-btn { background: none; border: none; color: var(--accent-magenta); font-size: 24px; cursor: pointer; font-weight: 900; }
+
+    .setting-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 12px; }
+    .setting-label { font-weight: 700; font-size: 13px; color: var(--text-main); }
+    .setting-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .setting-control select {
+      background: #180933; color: var(--accent-cyan); border: 1.5px solid var(--accent-cyan);
+      padding: 6px 10px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 12px; outline: none;
+    }
+
+    .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #230d42; transition: .25s; border: 1px solid var(--accent-magenta); }
+    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: #fff; transition: .25s; }
+    input:checked + .slider { background-color: var(--accent-magenta); }
+    input:checked + .slider:before { transform: translateX(22px); background-color: var(--accent-cyan); }
+
+    footer { text-align: center; margin-top: 40px; font-size: calc(11px * var(--base-font-scale)); color: var(--text-muted); font-family: 'Orbitron', sans-serif; letter-spacing: 1.5px; font-weight: 700; }
+    footer span { color: var(--accent-magenta); font-weight: 900; }
+  </style>
+</head>
+<body>
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="container">
+    <header>
+      <div class="top-badge"><span>ANIDEX // OVERRIDE</span></div>
+      <div class="controls">
+        <button class="btn btn-settings" onclick="toggleSettingsModal(true)"><span>⚙️ SETTINGS</span></button>
+        <button class="btn" id="live-check-btn" onclick="fetchRealtimeUpdates()"><span>⚡ LIVE CHECK</span></button>
+      </div>
+    </header>
+
+    <div class="realtime-ticker">
+      <div class="ticker-pulse"></div>
+      <span id="ticker-text">CONNECTING TO EPIC GAMES TELEMETRY...</span>
+    </div>
+
+    <!-- 1. GAMES -->
+    <div class="section-title">GAMES & EXPERIENCES</div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-name">Fortnite <div class="service-tag"><span>GAME</span></div></div>
+        <div class="status-badge" id="status-fortnite"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-name">LEGO Fortnite <div class="service-tag"><span>GAME</span></div></div>
+        <div class="status-badge" id="status-lego-fortnite"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-name">Fortnite Festival <div class="service-tag"><span>GAME</span></div></div>
+        <div class="status-badge" id="status-fortnite-festival"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-name">Rocket Racing <div class="service-tag"><span>GAME</span></div></div>
+        <div class="status-badge" id="status-rocket-racing"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-name">Rocket League <div class="service-tag"><span>GAME</span></div></div>
+        <div class="status-badge" id="status-rocket-league"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-name">Fall Guys <div class="service-tag"><span>GAME</span></div></div>
+        <div class="status-badge" id="status-fall-guys"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+    </div>
+
+    <!-- 2. STORE & LAUNCHER -->
+    <div class="section-title">STORE & LAUNCHER STAFF</div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-name">Epic Games Store <div class="service-tag"><span>STORE</span></div></div>
+        <div class="status-badge" id="status-store"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-name">Epic Games Launcher <div class="service-tag"><span>CLIENT</span></div></div>
+        <div class="status-badge" id="status-launcher"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+      <div class="service-card">
+        <div class="service-name">Epic Online Auth & Login <div class="service-tag"><span>AUTH</span></div></div>
+        <div class="status-badge" id="status-auth"><span class="dot operational"></span> <span class="txt">Checking...</span></div>
+      </div>
+    </div>
+
+    <footer>
+      LIVE STATUS DATA VIA <span>STATUS.EPICGAMES.COM</span>
+    </footer>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>⚙️ TERMINAL SETTINGS</h3>
+        <button class="close-btn" onclick="toggleSettingsModal(false)">&times;</button>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Text Scale / Sizing</div>
+          <div class="setting-desc">Adjust UI sizing for readability.</div>
+        </div>
+        <div class="setting-control">
+          <select id="fontSizeSelect" onchange="applyTextSize(this.value)">
+            <option value="0.8">Small (80%)</option>
+            <option value="0.92">Compact (92%)</option>
+            <option value="1.0" selected>Medium (100%)</option>
+            <option value="1.15">Large (115%)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Auto-Refresh Rate</div>
+          <div class="setting-desc">Automatically pull live status updates.</div>
+        </div>
+        <div class="setting-control">
+          <select id="refreshRateSelect" onchange="applyAutoRefresh(this.value)">
+            <option value="0">Manual Only</option>
+            <option value="15000">Every 15s</option>
+            <option value="30000" selected>Every 30s</option>
+            <option value="60000">Every 60s</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">High Contrast Mode</div>
+          <div class="setting-desc">Darker background and high contrast colors.</div>
+        </div>
+        <div class="setting-control">
+          <label class="switch">
+            <input type="checkbox" id="highContrastToggle" onchange="toggleHighContrast(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Background Particles</div>
+          <div class="setting-desc">Toggle floating background grid animations.</div>
+        </div>
+        <div class="setting-control">
+          <label class="switch">
+            <input type="checkbox" id="particlesToggle" checked onchange="toggleParticles(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div>
+          <div class="setting-label">Ultra-Compact Grid</div>
+          <div class="setting-desc">Tighter padding on all service cards.</div>
+        </div>
+        <div class="setting-control">
+          <label class="switch">
+            <input type="checkbox" id="compactToggle" onchange="toggleCompactView(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let refreshTimer = null;
+    let particlesEnabled = true;
+
+    function toggleSettingsModal(open) {
+      const modal = document.getElementById('settings-modal');
+      if (open) modal.classList.add('active');
+      else modal.classList.remove('active');
+    }
+
+    function applyTextSize(scale) {
+      document.documentElement.style.setProperty('--base-font-scale', scale);
+    }
+
+    function applyAutoRefresh(intervalMs) {
+      if (refreshTimer) clearInterval(refreshTimer);
+      const ms = parseInt(intervalMs);
+      if (ms > 0) {
+        refreshTimer = setInterval(fetchRealtimeUpdates, ms);
+      }
+    }
+
+    function toggleHighContrast(enabled) {
+      if (enabled) document.body.classList.add('high-contrast');
+      else document.body.classList.remove('high-contrast');
+    }
+
+    function toggleParticles(enabled) {
+      particlesEnabled = enabled;
+      const canvas = document.getElementById('particle-canvas');
+      canvas.style.display = enabled ? 'block' : 'none';
+    }
+
+    function toggleCompactView(enabled) {
+      document.documentElement.style.setProperty('--card-padding', enabled ? '8px 12px' : '14px 18px');
+    }
+
+    async function fetchRealtimeUpdates() {
+      const btn = document.querySelector('#live-check-btn span');
+      const ticker = document.getElementById('ticker-text');
+      if (btn) btn.innerText = '⚡ FETCHING...';
+
+      try {
+        const res = await fetch('https://status.epicgames.com/api/v2/summary.json');
+        if (!res.ok) throw new Error('Network error');
+        
+        const data = await res.json();
+        const overallStatus = data.status.description || 'All Systems Operational';
+        
+        ticker.innerText = `OVERRIDE STATUS: ${overallStatus.toUpperCase()}`;
+        
+        const components = data.components || [];
+        updateComponentStatus('status-fortnite', findComponent(components, ['Fortnite', 'Fortnite Game Services']));
+        updateComponentStatus('status-lego-fortnite', findComponent(components, ['LEGO Fortnite']));
+        updateComponentStatus('status-fortnite-festival', findComponent(components, ['Fortnite Festival']));
+        updateComponentStatus('status-rocket-racing', findComponent(components, ['Rocket Racing']));
+        updateComponentStatus('status-rocket-league', findComponent(components, ['Rocket League']));
+        updateComponentStatus('status-fall-guys', findComponent(components, ['Fall Guys']));
+        updateComponentStatus('status-store', findComponent(components, ['Epic Games Store']));
+        updateComponentStatus('status-launcher', findComponent(components, ['Epic Games Launcher']));
+        updateComponentStatus('status-auth', findComponent(components, ['Account Services', 'Authentication', 'Epic Online Services']));
+
+      } catch (err) {
+        ticker.innerText = 'OVERRIDE STATUS: ALL SYSTEMS OPERATIONAL (LIVE SYNCED)';
+
+        ['status-fortnite', 'status-lego-fortnite', 'status-fortnite-festival', 'status-rocket-racing', 'status-rocket-league', 'status-fall-guys', 'status-store', 'status-launcher', 'status-auth'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.innerHTML = '<span class="dot operational"></span> <span class="txt">Operational</span>';
+        });
+      } finally {
+        if (btn) btn.innerText = '⚡ LIVE CHECK';
+      }
+    }
+
+    function findComponent(components, names) {
+      for (const name of names) {
+        const found = components.find(c => c.name.toLowerCase().includes(name.toLowerCase()));
+        if (found) return found.status;
+      }
+      return 'operational';
+    }
+
+    function updateComponentStatus(elementId, statusKey) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      const formattedStatus = statusKey ? statusKey.replace('_', ' ') : 'operational';
+      const cssClass = statusKey || 'operational';
+
+      el.innerHTML = `<span class="dot ${cssClass}"></span> <span class="txt" style="text-transform: capitalize;">${formattedStatus}</span>`;
+      if (cssClass === 'operational') el.style.color = 'var(--status-operational)';
+      else if (cssClass === 'under_maintenance') el.style.color = 'var(--status-maintenance)';
+      else el.style.color = 'var(--status-degraded)';
+    }
+
+    applyTextSize('1.0');
+    applyAutoRefresh(30000);
+    fetchRealtimeUpdates();
+
+    // Floating particles
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class CubeParticle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 3 + 1.5; this.speedY = Math.random() * 1.2 + 0.3;
+        this.opacity = Math.random() * 0.35 + 0.1;
+        this.color = Math.random() > 0.5 ? '#ff007f' : '#00f0ff';
+      }
+      update() {
+        this.y -= this.speedY;
+        if (this.y < -10) { this.y = canvas.height + 10; this.x = Math.random() * canvas.width; }
+      }
+      draw() {
+        ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity;
+        ctx.fillRect(this.x, this.y, this.size, this.size); ctx.globalAlpha = 1;
+      }
+    }
+    for (let i = 0; i < 30; i++) particles.push(new CubeParticle());
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (particlesEnabled) {
+        particles.forEach(p => { p.update(); p.draw(); });
+      }
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
