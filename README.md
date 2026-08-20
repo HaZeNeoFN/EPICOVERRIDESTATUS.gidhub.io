@@ -1,1 +1,4 @@
-A not eyes killing status page for epic games and it look not ugly like the real one sorry epic...
+I HATE EPICS STATUS WEBSIDE 
+
+AND ONLY JOIN THE DISCORD DO NOT JOIN A FAKE SERVER!
+https://discord.gg/Q2XqH4Hu57 
